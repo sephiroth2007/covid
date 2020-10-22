@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+
+<!-- Load d3.js -->
+<script src="https://d3js.org/d3.v4.js"></script>
+
+<!-- Initialize a select button -->
+<select id="selectButton"></select>
+
+<!-- Create a div where the graph will take place -->
+<div id="my_dataviz"></div>
+
+<!-- Color Scale -->
+<script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+
+
+<script>
+
+// set the dimensions and margins of the graph
+var margin = {top: 100, right: 100, bottom: 100, left: 300},
+    width = 860 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
+
+// append the svg object to the body of the page
+var svg = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+// append the svg object to the body of the page
+var svg2 = d3.select("#my_dataviz")
+  .append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform",
+          "translate(" + margin.left + "," + margin.top + ")");
+
+//Read the data
+d3.csv("https://raw.githubusercontent.com/sephiroth2007/data/main/covid19_rt_global.csv", function(data) {
+
+// List of groups (here I have one group per column)
+    var allGroup = d3.map(data, function(d){return(d.countryname)}).keys()
+
+    console.log(allGroup);
+
+
+    // List of groups (here I have one group per column)
+    //var allGroup = ["valueA", "valueB", "valueC"]
+
+    // add the options to the button
+    d3.select("#selectButton")
+      .selectAll('myOptions')
+       .data(allGroup)    //muestra pais vectores
+      .enter()
+       .append('option')
+      .text(function (d) { return d; }) // text showed in the menu
+      .attr("value", function (d) { return d; }) // corresponding value returned by the button
+
+    // A color scale: one color for each group
+    var myColor = d3.scaleOrdinal()
+      .domain(allGroup)
+      .range(d3.schemeSet2);
+
+datafilter=data.filter(function(d){return d.countryname==allGroup[0]})
+
+  var extent_X = [0, d3.max(datafilter, function(d) {
+     return Math.max(d.time); })]
+  var extent_Y = [0, d3.max(datafilter, function(d) {
+     return Math.max(d.True_I); })]
+
+
+
+    // Add X axis --> it is a date format
+    var x = d3.scaleLinear()
+    //  .domain([0,10])
+      .domain(extent_X)
+      .range([ 0, width ]);
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x));
+
+
+
+    // Add Y axis
+    var y = d3.scaleLinear()
+     // .domain( [0,200])
+      .domain(extent_Y)
+      .range([ height, 0 ]);
+    svg.append("g")
+      .call(d3.axisLeft(y));
+
+
+    // Initialize line with group a
+    var line = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.time) })
+          .y(function(d) { return y(+d.True_I) })
+        )
+        .attr("stroke","green",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+     // Initialize line2 with group a
+    var line2 = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.time) })
+          .y(function(d) { return y(+d.I50) })
+        )
+        .attr("stroke","black",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+       // Initialize line2 with group a
+    var line3 = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.time) })
+          .y(function(d) { return y(+d.I75) })
+        )
+        .attr("stroke","black",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+
+       // Initialize line2 with group a
+    var line4 = svg
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x(+d.time) })
+          .y(function(d) { return y(+d.I25) })
+        )
+        .attr("stroke","yellow",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+/////// GRAPH 2
+
+
+datafilter= data.filter(function(d){return d.countryname==allGroup[0]})
+
+var extent_X2 = [0, d3.max(datafilter, function(d) {
+     return Math.max(d.time); })]
+  var extent_Y2 = [0, d3.max(datafilter, function(d) {
+     return Math.max(d.R050); })]
+
+        console.log(data)
+        console.log(extent_Y2)
+
+     // Add X axis --> it is a date format
+    var x2 = d3.scaleLinear()
+    //  .domain([0,10])
+      .domain(extent_X2)
+      .range([ 0, width ]);
+    svg2.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x2));
+
+
+// Add Y axis
+    var y2 = d3.scaleLinear()
+     // .domain( [0,200])
+      .domain(extent_Y2)
+      .range([ height, 0 ]);
+    svg2.append("g")
+      .call(d3.axisLeft(y2));
+
+    // Add X axis --> it is a date format
+    var x2 = d3.scaleLinear()
+    //  .domain([0,10])
+      .domain(extent_X2)
+      .range([ 0, width ]);
+    svg2.append("g")
+      .attr("transform", "translate(0," + height + ")")
+      .call(d3.axisBottom(x2));
+
+
+
+
+    // Initialize line with group a
+    var line5 = svg2
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x2(+d.time) })
+          .y(function(d) { return y2(+d.R050) })
+        )
+        .attr("stroke","red",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+     // Initialize line2 with group a
+    var line6 = svg2
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x2(+d.time) })
+          .y(function(d) { return y2(+d.R075) })
+        )
+        .attr("stroke","blue",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+   // Initialize line2 with group a
+    var line7 = svg2
+      .append('g')
+      .append("path")
+        .datum(data.filter(function(d){return d.countryname==allGroup[0]}))
+        .attr("d", d3.line()
+          .x(function(d) { return x2(+d.time) })
+          .y(function(d) { return y2(+d.R025) })
+        )
+        .attr("stroke","orange",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+
+
+    // A function that update the chart
+    function update(selectedGroup) {
+
+        d3.selectAll("g > *").remove()
+
+
+      // Create new data with the selection?
+      var dataFilter = data.filter(function(d){return d.countryname==selectedGroup})
+
+        var extent_Y = [0, d3.max(dataFilter, function(d) {
+     return Math.max(d.True_I); })]
+            y.domain(extent_Y)
+         console.log(extent_Y)
+
+
+    var extent_X = [0, d3.max(dataFilter, function(d) {
+     return Math.max(d.time); })]
+     x.domain(extent_X)
+
+         /////PARA LOS DOMINIOS PARA QUE CAMBIE
+
+        var extent_Y2 = [0, d3.max(dataFilter, function(d) {
+     return Math.max(d.R050); })]
+            y2.domain(extent_Y2)
+         console.log(extent_Y2)
+
+
+    var extent_X2 = [0, d3.max(dataFilter, function(d) {
+     return Math.max(d.time); })]
+     x2.domain(extent_X2)
+
+
+  // Give these new data to update line
+      var line = svg
+           .append('g')
+        .append("path")
+          .datum(dataFilter)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.time) })
+            .y(function(d) { return y(+d.True_I) })
+          )
+         .attr("stroke","green",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+      // Give these new data to update line
+      var line2 = svg
+        .append('g')
+        .append("path")
+          .datum(dataFilter)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.time) })
+            .y(function(d) { return y(+d.I50) })
+          )
+        .attr("stroke","black",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+        // Give these new data to update line
+      var line3 = svg
+        .append('g')
+        .append("path")
+          .datum(dataFilter)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.time) })
+            .y(function(d) { return y(+d.I75) })
+          )
+        .attr("stroke","pink",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+        // Give these new data to update line
+      var line4 = svg
+        .append('g')
+        .append("path")
+          .datum(dataFilter)
+          .attr("d", d3.line()
+            .x(function(d) { return x(+d.time) })
+            .y(function(d) { return y(+d.I25) })
+          )
+        .attr("stroke","yellow",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+
+
+
+
+                 // Add the X Axis
+           svg.append("g")
+               .attr("transform", "translate(0," + height + ")")
+               .call(d3.axisBottom(x));
+
+          // Add the Y Axis
+          svg.append("g")
+              .call(d3.axisLeft(y));
+
+
+
+
+
+
+
+          // Give these new data to update line
+      line5= svg2
+      .append('g')
+        .append("path")
+          .datum(dataFilter)
+           .attr("d", d3.line()
+            .x(function(d) { return x2(+d.time) })
+            .y(function(d) { return y2(+d.R050) })
+          )
+        .attr("stroke","red",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+
+      // Give these new data to update line
+      line6= svg2
+      .append('g')
+        .append("path")
+          .datum(dataFilter)
+           .attr("d", d3.line()
+            .x(function(d) { return x2(+d.time) })
+            .y(function(d) { return y2(+d.R075) })
+          )
+        .attr("stroke","blue",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+
+              // Give these new data to update line
+      line7= svg2
+      .append('g')
+        .append("path")
+          .datum(dataFilter)
+           .attr("d", d3.line()
+            .x(function(d) { return x2(+d.time) })
+            .y(function(d) { return y2(+d.R025) })
+          )
+        .attr("stroke","orange",function(d){ return myColor("valueA") })
+        .style("stroke-width", 4)
+        .style("fill", "none")
+        .style("stroke-dasharray", ("3, 3"))
+
+
+                // Add the X Axis
+           svg2.append("g")
+               .attr("transform", "translate(0," + height + ")")
+               .call(d3.axisBottom(x2));
+
+          // Add the Y Axis
+          svg2.append("g")
+              .call(d3.axisLeft(y2));
+
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // When the button is changed, run the updateChart function
+    d3.select("#selectButton").on("change", function(d) {
+        // recover the option that has been chosen
+        var selectedOption = d3.select(this).property("value")
+        // run the updateChart function with this selected option
+        update(selectedOption)
+    })
+
+})
+
+
+</script>
